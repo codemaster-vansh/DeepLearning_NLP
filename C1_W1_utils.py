@@ -68,3 +68,33 @@ def create_training_matrix(train_set,freqs):
     for i,tweet in enumerate(train_set):
         train_X[i,:] = extract_features(tweet,freqs)
     return train_X
+
+#TRAINING UTILS
+def sigmoid(z):
+    return 1/(1 + np.exp(-z))
+
+def gradient_descent(train_X,train_y,theta,alpha,num_iters):
+    m = train_X.shape[0]
+    history_loss = []
+    history_theta = []
+
+    for i in range(num_iters):
+        z = np.dot(train_X,theta)
+        h = sigmoid(z)
+        J = (-1/m)*(np.dot(train_y.T,np.log(h)) + np.dot(1 - train_y.T,np.log(1 - h)))
+        history_loss.append(J)
+        history_theta.append(theta)
+        theta -= (alpha/m)*(np.dot(train_X.T,h - train_y))
+
+    J = float(J)
+    return J, theta, history_loss, history_theta
+
+def predict_tweet_logits(tweet,freqs,theta):
+    feat_tweet = extract_features(tweet,freqs)
+    return sigmoid(np.dot(feat_tweet,theta))
+
+def predict_tweet_threshold(tweet,freqs,theta,threshold = 0.5):
+    feat_tweet = extract_features(tweet,freqs)
+    return (1 if (sigmoid(np.dot(feat_tweet,theta)) >= threshold) else 0)
+
+def test_theta
