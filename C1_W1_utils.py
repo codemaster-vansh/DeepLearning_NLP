@@ -50,15 +50,21 @@ def build_freqs(tweets,ys):
             freqs[pair] = freqs.get(pair,0) + 1
     return freqs
 
-def create_training(train_set, freqs:dict):
-    train_array = np.zeros((len(train_set),3))
-    for i,tweet in enumerate(train_array):
-        train_array[i,0] = 1
-        pos_con = 0
-        neg_con = 0
-        for word in process_tweet(tweet):
-            pos_con += freqs.get((word,1),0)
-            neg_con += freqs.get((word,0),0)
-        train_array[i,1] = pos_con
-        train_array[i,2] = neg_con
+def extract_features(tweet, freqs:dict):
+    X = np.zeros(3)
+    word_l = process_tweet(tweet)
+    X[0] = 1
+    pos_con = 0
+    neg_con = 0
+    for word in word_l:
+        pos_con += freqs.get((word,1),0)
+        neg_con += freqs.get((word,0),0)
 
+    X[1] = pos_con
+    X[2] = neg_con
+
+def create_training_matrix(train_set,freqs):
+    train_X = np.zeros((len(train_set),3))
+    for i,tweet in enumerate(train_set):
+        train_X[i,:] = extract_features(tweet,freqs)
+    return train_X
