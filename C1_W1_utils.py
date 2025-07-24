@@ -1,10 +1,7 @@
 import os
 import nltk
 import re
-import pickle
 import numpy as np
-from string import punctuation
-from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import TweetTokenizer
 
@@ -25,7 +22,7 @@ def ensure_corpora_downloaded():
         except LookupError:
             nltk.download(corpus,download_dir=CORPUS_DIR,quiet=True)
 
-def process_tweet(tweet):
+def process_tweet(tweet,stopwords,punctuation):
     tweet = re.sub(r'^RT[\s]+','',tweet)
     tweet = re.sub(r'https?://[^\s\n\r]','',tweet)
     tweet = re.sub(r'#','',tweet)
@@ -97,4 +94,17 @@ def predict_tweet_threshold(tweet,freqs,theta,threshold = 0.5):
     feat_tweet = extract_features(tweet,freqs)
     return (1 if (sigmoid(np.dot(feat_tweet,theta)) >= threshold) else 0)
 
-def test_theta
+#DATA ANALYSIS
+
+def compute_pca(X_data:np.ndarray,n_components = 2) -> np.ndarray:
+    """
+    X_data: np.ndarray -> Should be the data in numpy form
+    n_components: Returns the data of the top 'n_components' axis which explain the most variance
+    """
+    X_reduced = X_data - np.mean(X_data,axis=0)
+    covariance_matrix = np.cov(X_reduced,rowvar=False)
+    eigen_values, eigen_vecs = np.linalg.eig(covariance_matrix)
+    indexes_sorted = np.argsort(eigen_values)[::-1]
+    eigen_vec_sorted = eigen_vecs[:,indexes_sorted]
+    eigen_vec_subset = eigen_vec_sorted[:,:n_components]
+    return np.dot(X_reduced,eigen_vec_subset)
